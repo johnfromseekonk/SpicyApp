@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stay Spicy Chicago</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --accent-color: #ff4500;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .phone-container {
+            width: 100%;
+            max-width: 412px;
+            background-color: #000000;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        header {
+            padding: 20px 15px 10px 15px;
+            text-align: center;
+            border-bottom: 1px solid #222;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin: 0 0 5px 0;
+            color: #fff;
+        }
+
+        .location-badge {
+            font-size: 12px;
+            color: var(--accent-color);
+            background: rgba(255, 69, 0, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .content {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 40px;
+        }
+
+        .instruction {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 35px;
+        }
+
+        .grid-item {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+            aspect-ratio: 2 / 3;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .grid-item:active {
+            transform: scale(0.95);
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: filter 0.3s ease;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5px;
+            box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay-text {
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+        }
+
+        .grid-item:hover .grid-overlay {
+            opacity: 1;
+        }
+        
+        .grid-item:hover img {
+            filter: brightness(0.6);
+        }
+
+        .divider {
+            text-align: center;
+            font-size: 11px;
+            color: #555;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .upload-label {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            color: var(--text-color);
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-sizing: border-box;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .upload-label:hover {
+            background-color: #252525;
+        }
+
+        .search-bar-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-bar {
+            flex: 1;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            padding: 14px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 0 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .scan-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #000000;
+            z-index: 15;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .preview-box {
+            width: 85%;
+            aspect-ratio: 4/3;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--accent-color);
+            margin-bottom: 25px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 69, 0, 0.4);
+        }
+
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .laser-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #ff4500;
+            box-shadow: 0 0 15px #ff4500;
+            animation: scanAnimation 2s infinite ease-in-out;
+        }
+
+        @keyframes scanAnimation {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+
+        .scan-status {
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--accent-color);
+            letter-spacing: 1.5px;
+            text-align: center;
+        }
+
+        .results-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-color);
+            z-index: 10;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .results-header h2 {
+            margin: 0 0 5px 0;
+            font-size: 20px;
+        }
+
+        .results-header p {
+            margin: 0 0 20px 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .sauce-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .sauce-badge {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .sauce-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .sauce-shu {
+            font-size: 12px;
+            color: #ff9900;
+            margin-bottom: 8px;
+        }
+
+        .sauce-note {
+            font-size: 13px;
+            color: #dddddd;
+            line-height: 1.4;
+        }
+
+        .restaurant-section {
+            margin-top: 25px;
+        }
+
+        .restaurant-card {
+            background: #181818;
+            border: 1px solid #282828;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rest-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .rest-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .delivery-tag {
+            font-size: 11px;
+            background-color: #333;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <header>
+        <h1>STAY SPICY CHICAGO</h1>
+        <div class="location-badge">📍 Lincoln Ave & Worthington</div>
+    </header>
+
+    <div class="content">
+        <p class="instruction">Tap any food photo below to find your perfect Hot Ones flavor match.</p>
+        
+        <div class="grid-container">
+            <div class="grid-item" onclick="showPairings('hotdog')">
+                <img src="https://images.unsplash.com/photo-1619740455993-9e612b1af08a?auto=format&fit=crop&w=250&q=80" alt="Hotdog" title="Classic Chicago Hotdog">
+                <div class="grid-overlay"><div class="overlay-text">Chicago<br>Hotdog</div></div>
+            </div>
+            <div class="grid-item" onclick="showPairings('quiche')">
+                <!-- Pointing directly to your local quiche image file -->
+                <img src="quiche.jpg" alt="Quiche" title="Savory Slice of Quiche">
+                <div class="grid-overlay"><div class="overlay-text">Slice of<br>Quiche</div></div>
+            </div>
+            <div class="grid-item" onclick="showPairings('fishchips')">
+                <!-- Pointing directly to your local fish & chips image file -->
+                <img src="fccopy.jpg" alt="Fish and Chips" title="Crispy Fish and Chips">
+                <div class="grid-overlay"><div class="overlay-text">Fish &<br>Chips</div></div>
+            </div>
+            <div class="grid-item" onclick="showPairings('wings')">
+                <img src="https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=250&q=80" alt="Chicken Wings" title="Platter of Chicken Wings">
+                <div class="grid-overlay"><div class="overlay-text">Chicken<br>Wings</div></div>
+            </div>
+            <div class="grid-item" onclick="showPairings('deepdish')">
+                <img src="https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=250&q=80" alt="Chicago Deep Dish" title="Chicago Deep Dish Pizza">
+                <div class="grid-overlay"><div class="overlay-text">Deep Dish<br>Pizza</div></div>
+            </div>
+            <div class="grid-item" onclick="showPairings('steak')">
+                <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=250&q=80" alt="Grilled Steak" title="Premium Grilled Steak">
+                <div class="grid-overlay"><div class="overlay-text">Grilled<br>Steak</div></div>
+            </div>
+        </div>
+
+        <div class="divider">Or Scan Natively</div>
+
+        <div class="input-group">
+            <label for="photo-upload" class="upload-label">
+                📸 Upload Live Dish Photo
+            </label>
+            <input type="file" id="photo-upload" accept="image/*" style="display: none;" onchange="processLivePhotoUpload(event)">
+        </div>
+
+        <div class="search-bar-container">
+            <input type="text" id="text-search" class="search-bar" placeholder="Type a craving (e.g. wings, pancakes)...">
+            <button class="search-btn" onclick="handleTextSearch()">➔</button>
+        </div>
+    </div>
+
+    <!-- SCANNING SCREEN LAYER -->
+    <div id="scanOverlay" class="scan-overlay">
+        <div class="preview-box">
+            <img id="scanPreview" src="" alt="Scanning Preview">
+            <div class="laser-line"></div>
+        </div>
+        <div class="scan-status">AI ENGINE: ANALYZING PIXELS...</div>
+    </div>
+
+    <!-- MATCH RESULTS SCREEN LAYER -->
+    <div id="resultsOverlay" class="results-overlay">
+        <button class="close-btn" onclick="closeResults()">← Back to Cravings</button>
+        
+        <div class="results-header">
+            <h2 id="detectedFoodTitle">Detected Food Item</h2>
+            <p>Hot Ones™ Official Flavor Profile Matches</p>
+        </div>
+
+        <div class="sauce-card">
+            <div class="sauce-badge">Primary Dynamic Match</div>
+            <div id="sauce1Title" class="sauce-title">Sauce Name Loading...</div>
+            <div id="sauce1Shu" class="sauce-shu">0 SHU</div>
+            <div id="sauce1Note" class="sauce-note">Pairing note content...</div>
+        </div>
+
+        <div class="sauce-card">
+            <div class="sauce-badge">Alternative Flavor Profile</div>
+            <div id="sauce2Title" class="sauce-title">Sauce Name Loading...</div>
+            <div id="sauce2Shu" class="sauce-shu">0 SHU</div>
+            <div id="sauce2Note" class="sauce-note">Pairing note content...</div>
+        </div>
+
+        <div class="restaurant-section">
+            <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 10px;">Available Nearby</h3>
+            <div id="restaurantContainer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Local Prototype Flavor & Location Database
+    const pairingDatabase = {
+        hotdog: {
+            title: "Chicago Style Hotdog",
+            s1: { title: "#2 Hot Ones | The Classic (Chili Maple Edition)", shu: "1,800 SHU", note: "The sweetness of real maple balances out the sharp neon relish and pickle spears perfectly with charred meat." },
+            s2: { title: "#5 Los Calientes | Rojo", shu: "49,000 SHU", note: "Applewood smoked red jalapeños complement the char of a grilled dog beautifully, adding depth to the celery salt accent." },
+            spots: [
+                { name: "Fluky's Hot Stand", dist: "0.2 miles", app: "UberEats" },
+                { name: "The Corner Doghouse", dist: "0.4 miles", app: "DoorDash, Grubhub" }
+            ]
+        },
+        quiche: {
+            title: "Savory Crust Quiche",
+            s1: { title: "#3 Queen Majesty | Jalapeño Tequila & Lime", shu: "5,500 SHU", note: "A bright, zesty vinegar-forward punch cuts right through heavy egg, cream, and cheese densities cleanly." },
+            s2: { title: "#1 Hot Ones | The Classic (Garlic Fresco)", shu: "1,700 SHU", note: "Heavy garlic notes and mild Fresno pepper warmth accentuate the earthy tones of baked pie crust and mushrooms." },
+            spots: [
+                { name: "La Boulangerie Bistro", dist: "0.3 miles", app: "Grubhub" }
+            ]
+        },
+        fishchips: {
+            title: "Crispy Fish & Chips",
+            s1: { title: "#4 Heartbeat Hot Sauce | Tart Habanero", shu: "12,000 SHU", note: "Fermented habanero blended with bold vinegar acts like an electric, spicy malt-vinegar update that slices through grease." },
+            s2: { title: "#3 Torchbearer | Garlic Head", shu: "3,500 SHU", note: "A creamy garlic explosion that acts like a highly elevated, fiery tartar sauce. Ideal for dipping heavy potato wedges." },
+            spots: [
+                { name: "The Duke of Perth", dist: "0.18 miles", app: "UberEats, DoorDash" },
+                { name: "Wellington Pub", dist: "0.5 miles", app: "Grubhub" }
+            ]
+        },
+        wings: {
+            title: "Classic Chicken Wings",
+            s1: { title: "#7 Hot Ones | Los Calientes Barbacoa", shu: "64,000 SHU", note: "The definitive companion for wings. Smoked chipotle, sweet apricot, and complex habanero heat elevate chicken to legend status." },
+            s2: { title: "#10 Da' Bomb | Beyond Insanity", shu: "135,000 SHU", note: "Pure structural chemical warfare. For true heat seekers only; clear battery-acid sting that stays stuck to meat." },
+            spots: [
+                { name: "Lincoln Wings & Rings", dist: "0.1 miles", app: "DoorDash" },
+                { name: "The Wing Joint", dist: "0.3 miles", app: "UberEats, Grubhub" }
+            ]
+        },
+        deepdish: {
+            title: "Chicago Deep Dish Pizza",
+            s1: { title: "#6 Angry Goat | Hippo Flambé", shu: "58,000 SHU", note: "Sizzling serrano mixed with sweet kiwi and smoky profiles cuts through a thick, heavy layer of molten mozzarella." },
+            s2: { title: "#8 Da' Bomb | Evolution", shu: "135,000 SHU", note: "A rich, pure pepper-mash profile that stands up confidently against dense crusts and highly acidic, chunky tomato sauce." },
+            spots: [
+                { name: "Lou Malnati's Pizzeria", dist: "0.22 miles", app: "DoorDash" },
+                { name: "Giordano's", dist: "0.45 miles", app: "UberEats" }
+            ]
+        },
+        steak: {
+            title: "Premium Grilled Steak",
+            s1: { title: "#9 Butterfly Bakery | Smoked Serrano Squash Reaper X", shu: "720,000 SHU", note: "Steak thrives alongside complex depth. Earthy butternut squash, smoked onion, and extreme Carolina Reaper heat." },
+            s2: { title: "#4 Smokin' Dragon | Smoked Habanero & Peach", shu: "38,000 SHU", note: "If you prioritize smoke over pure fire, the sweet molasses and dark aromatic spices interact excellently with beef fat." },
+            spots: [
+                { name: "The Lincoln Chophouse", dist: "0.15 miles", app: "UberEats" }
+            ]
+        },
+        pancakes: {
+            title: "Fluffy Stack of Pancakes",
+            s1: { title: "#4 Hot Ones | Los Calientes Verde", shu: "36,000 SHU", note: "The smoky serrano, sweet agave nectar, and tart tomatillo notes blend flawlessly with maple syrup, acting like a breakfast revelation." },
+            s2: { title: "#5 Hot Ones | Tropical Amarillo", shu: "69,000 SHU", note: "Sweet meets heat. This blend of Scotch Bonnet, mango, and passion fruit turns a heavy breakfast stack into a tropical adventure." },
+            spots: [
+                { name: "The Pancake House", dist: "0.05 miles", app: "DoorDash, UberEats" },
+                { name: "Lincoln Square Diner", dist: "0.14 miles", app: "Grubhub" }
+            ]
+        }
+    };
+
+    function showPairings(foodKey) {
+        const data = pairingDatabase[foodKey];
+        if (!data) return;
+
+        document.getElementById('detectedFoodTitle').innerText = data.title;
+        
+        document.getElementById('sauce1Title').innerText = data.s1.title;
+        document.getElementById('sauce1Shu').innerText = data.s1.shu;
+        document.getElementById('sauce1Note').innerText = data.s1.note;
+
+        document.getElementById('sauce2Title').innerText = data.s2.title;
+        document.getElementById('sauce2Shu').innerText = data.s2.shu;
+        document.getElementById('sauce2Note').innerText = data.s2.note;
+
+        const container = document.getElementById('restaurantContainer');
+        container.innerHTML = '';
+        
+        data.spots.forEach(spot => {
+            const card = document.createElement('div');
+            card.className = 'restaurant-card';
+            card.innerHTML = `
+                <div>
+                    <div class="rest-name">${spot.name}</div>
+                    <div class="rest-meta">📍 ${spot.dist} away</div>
+                </div>
+                <div class="delivery-tag">${spot.app}</div>
+            `;
+            container.appendChild(card);
+        });
+
+        document.getElementById('resultsOverlay').style.display = 'block';
+    }
+
+    function closeResults() {
+        document.getElementById('resultsOverlay').style.display = 'none';
+    }
+
+    function processLivePhotoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('scanPreview').src = e.target.result;
+            document.getElementById('scanOverlay').style.display = 'flex';
+
+            setTimeout(() => {
+                document.getElementById('scanOverlay').style.display = 'none';
+                
+                let detectedItem = 'fishchips'; 
+                const name = file.name.toLowerCase();
+                
+                if (name.includes('wing') || name.includes('chick')) detectedItem = 'wings';
+                else if (name.includes('dog') || name.includes('hot')) detectedItem = 'hotdog';
+                else if (name.includes('pizza') || name.includes('deep')) detectedItem = 'deepdish';
+                else if (name.includes('quiche') || name.includes('egg')) detectedItem = 'quiche';
+                else if (name.includes('steak') || name.includes('beef')) detectedItem = 'steak';
+                else if (name.includes('pancake') || name.includes('cake')) detectedItem = 'pancakes';
+
+                showPairings(detectedItem);
+            }, 2200);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleTextSearch() {
+        const query = document.getElementById('text-search').value.toLowerCase().trim();
+        if (!query) return;
+
+        if (query.includes('dog') || query.includes('frank')) { showPairings('hotdog'); }
+        else if (query.includes('quiche') || query.includes('egg') || query.includes('pie')) { showPairings('quiche'); }
+        else if (query.includes('fish') || query.includes('chips') || query.includes('seafood')) { showPairings('fishchips'); }
+        else if (query.includes('wing') || query.includes('chicken') || query.includes('buffalo')) { showPairings('wings'); }
+        else if (query.includes('pizza') || query.includes('dish') || query.includes('deep')) { showPairings('deepdish'); }
+        else if (query.includes('steak') || query.includes('beef') || query.includes('ribeye')) { showPairings('steak'); }
+        else if (query.includes('pancake') || query.includes('hotcake') || query.includes('breakfast')) { showPairings('pancakes'); }
+        else {
+            alert(`"${document.getElementById('text-search').value}" isn't loaded in the prototype database yet.\n\nTry searching for: wings, hotdog, pizza, pancakes, quiche, steak, or fish!`);
+        }
+    }
+</script>
+
+</body>
+</html>
